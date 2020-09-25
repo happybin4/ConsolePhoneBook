@@ -8,6 +8,19 @@ namespace ConsolePhoneBook
 {
     public class PhoneBookManager //등록 삭제 관리
     {
+        static PhoneBookManager instance;
+        private PhoneBookManager()
+        {
+
+        }
+        public static PhoneBookManager CreateInstance()
+        {
+            if (instance == null)
+                instance = new PhoneBookManager();
+
+            return instance;
+        }
+
         const int MAX_CNT = 100;
         PhoneInfo[] infoStorage = new PhoneInfo[MAX_CNT];        
 
@@ -16,17 +29,68 @@ namespace ConsolePhoneBook
         public void ShowMenu()
         {
             Console.WriteLine("-------------------- 주소록 --------------------");
-            Console.WriteLine("  1. 입력  |  2. 목록  |  3. 검색  |  4. 삭제  |  5. 종료  ");
+            Console.WriteLine("  1. 입력  |  2. 목록  |  3. 검색  |  4. 정렬  |  5. 삭제  |  6. 종료  ");
             Console.WriteLine("------------------------------------------------");
             Console.Write("선택 : ");
         }
         public void InputData() //입력
         {
+            int choice;
+            
             Console.WriteLine("1. 일반  2. 대학  3. 회사");
             Console.Write("선택 >> ");
-            int choice = Utility.ConvertInt(Console.ReadLine());            
-            ChoInputData(choice);
+            
+            if(int.TryParse(Console.ReadLine(),out choice) == false)
+                throw new Exception("1~3까지의 숫자를 입력하세요");
+            if (choice < 1 || choice > 3)
+            {
+                throw new Exception("1~3까지의 숫자를 입력하세요");
+            }
+                ChoInputData(choice);
         }
+
+        internal void SortData()
+        {
+            Console.WriteLine("1.이름 ASC  2.이름 DESC  3.전화번호 ASC 4.전화번호 DESC");
+            Console.Write("선택 >> ");
+            int choice;
+            while (true)
+            {
+                if (int.TryParse(Console.ReadLine(), out choice))
+                {
+                    break;
+                }
+                else
+                    throw new Exception("1~4의 숫자를 입력하세요");
+            }
+            if (choice < 1 || choice > 4)
+            {
+
+                throw new Exception("1.이름 ASC  2.이름 DESC  3.전화번호 ASC 4.전화번호 DESC 중에 선택하십시오.");
+                
+            }
+            PhoneInfo[] new_arr = new PhoneInfo[curCnt];
+            Array.Copy(infoStorage, new_arr, curCnt);
+            if(choice == 1)
+            {
+                Array.Sort(new_arr);
+            }
+            else if(choice == 2)
+            {
+                Array.Sort(new_arr);
+                Array.Reverse(new_arr);
+            }
+            else if(choice == 3)
+            {
+                Array.Sort(new_arr, new PhoneComparator());
+            }
+            else
+            {
+                Array.Sort(new_arr, new PhoneComparator());
+                Array.Reverse(new_arr);
+            }
+        }
+
         //입력 함수
         private void ChoInputData(int choice)
         {
@@ -34,16 +98,14 @@ namespace ConsolePhoneBook
             string phoName = Console.ReadLine().Replace(" ", "");
             if (string.IsNullOrEmpty(phoName))  // == string.IsNullorEmpty(phoName), phoName.Length < 1
             {
-                Console.WriteLine("이름을 입력하세요");
-                return;
+                throw new Exception("이름을 입력하세요");
             }
             else
             {
                 int dataInx = SearchName(phoName);
                 if (dataInx > -1)
                 {
-                    Console.WriteLine("이미 등록된 이름입니다. 다른 이름으로 입력하세요");
-                    return;
+                    throw new Exception("등록된 이름이 있습니다 다른 이름을 입력하세요");
                 }
             }
             Console.Write("전화번호(필수) : ");
@@ -51,8 +113,8 @@ namespace ConsolePhoneBook
 
             if (phoNum.Length < 1)
             {
-                Console.WriteLine("전화번호를 입력하세요");
-                return;
+                throw new Exception("전화번호를 입력하세요");
+                
             }
             Console.Write("생일 : ");
             string phoBir = Console.ReadLine().Replace(" ", "");
@@ -77,8 +139,8 @@ namespace ConsolePhoneBook
                 phoMajor = Console.ReadLine().Replace(" ", "");
                 if(phoMajor.Length < 1)
                 {
-                    Console.WriteLine("학과를 입력하세요");
-                    return;
+                    throw new Exception("학과를 입력하세요");
+                    
                 }
                 else
                 {
@@ -87,8 +149,8 @@ namespace ConsolePhoneBook
                 }
                 if (phoYear.Length < 1)
                 {
-                    Console.WriteLine("학년를 입력하세요");
-                    return;
+                    throw new Exception("학년를 입력하세요");
+                    
                 }
                 else
                 {
@@ -102,8 +164,8 @@ namespace ConsolePhoneBook
                 phoCompany = Console.ReadLine().Replace(" ", "");
                 if (phoCompany.Length < 1)
                 {
-                    Console.WriteLine("회사명을 입력하세요");
-                    return;
+                    throw new Exception("회사명을 입력하세요");
+                    
                 }
                 else
                 {
@@ -112,8 +174,8 @@ namespace ConsolePhoneBook
             }
             else
             {
-                Console.WriteLine("주소 유형 번호을 다시 선택하세요");
-                return;
+                throw new Exception("주소 유형 번호을 다시 선택하세요");
+                
             }
         }
 
@@ -151,7 +213,7 @@ namespace ConsolePhoneBook
             int dataIdx = SearchName();
             if (dataIdx < 0)
             {
-                Console.WriteLine("검색된 데이터가 없습니다");
+                throw new Exception("검색된 데이터가 없습니다");
             }
             else
             {
@@ -191,7 +253,7 @@ namespace ConsolePhoneBook
             int dataIdx = SearchName();
             if (dataIdx < 0)
             {
-                Console.WriteLine("삭제할 데이터가 없습니다");
+                throw new Exception("삭제할 데이터가 없습니다");
             }
             else
             {

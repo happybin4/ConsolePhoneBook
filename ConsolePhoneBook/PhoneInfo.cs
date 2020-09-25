@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ConsolePhoneBook
 {
-    public class PhoneInfo
+    public class PhoneInfo : IComparable
     {
         string name; //필수
         string phoneNumber; //필수
@@ -18,7 +18,12 @@ namespace ConsolePhoneBook
             get { return name; }
             
         }
-        
+        public string Phone
+        {
+            get { return phoneNumber; }
+
+        }
+
         public PhoneInfo(string name, string num)
         {
             this.name = name;
@@ -37,6 +42,12 @@ namespace ConsolePhoneBook
             Console.WriteLine($"이름 : {name}, 전화번호 : {phoneNumber}, 생일 : {birth}");
         }
 
+        public int CompareTo(object obj)
+        {
+            PhoneInfo other = (PhoneInfo)obj;
+            return this.name.CompareTo(other.name);
+        }
+
         //ToString()를 override해서 PhoneManager에서 사용해보기
     }
 
@@ -53,6 +64,7 @@ namespace ConsolePhoneBook
         public override void ShowPhoneInfo()
         {
             base.ShowPhoneInfo();
+            Console.WriteLine($"\tmajor : {major}\tyear : {year}");
         }
     }
     public class PhoneCompany : PhoneInfo
@@ -66,6 +78,7 @@ namespace ConsolePhoneBook
         public override void ShowPhoneInfo()
         {
             base.ShowPhoneInfo();
+            Console.WriteLine($"\tcompany : {company}");
         }
     }
 }
